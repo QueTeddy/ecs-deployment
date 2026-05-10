@@ -37,5 +37,6 @@ docker run -d -p 8080:8080 b0nam/docker-doom
 
 4. **Access DOOM**: Open your web browser and navigate to `http://localhost:8080` to start playing DOOM. Customize the container configuration or mount game files as needed to enhance your gaming experience. The default NoVNC password is `PASSWORD`.
 
+
 ## PREVIEW
 ![](Resources/PREVIEW.gif)
