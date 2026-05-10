@@ -1,4 +1,6 @@
 resource "aws_eip" "nateip" {
   domain = "vpc"
-  tags   = merge(var.COMMON_TAGS, tomap({"Name"= format("${var.ENV}-${var.PROJECT_NAME}-eip-%s")}))
+  tags   = merge(var.COMMON_TAGS, {
+    "Name" = "${var.ENV}-${var.PROJECT_NAME}-eip"
+  })
 }
