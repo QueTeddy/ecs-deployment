@@ -53,7 +53,7 @@ variable "SERVICE_CONFIG" {
       port              = 8080
       protocol          = "HTTP"
       path_pattern      = ["/*"]
-      health_check_path = "/docs"
+      health_check_path = "/"
       priority          = 10
     }
 
