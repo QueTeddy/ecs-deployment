@@ -79,10 +79,8 @@ jobs:
     tf_infra:
         needs: [setup]
         if: |
-            always() &&
-            needs.setup.result == 'success' &&
-            (contains(needs.setup.outputs.changed_files, 'infra/') ||
-            github.event_name == 'push')
+            (github.event_name == 'pull_request' ||  (github.event_name == 'push')) && 
+            (contains(needs.setup.outputs.changed_files, 'infra/'))
         uses: ./.github/workflows/terraform_infra.yml
         with:
             environment: ${{ vars.ENVIRONMENT }}
@@ -98,9 +96,7 @@ jobs:
     deploy-service:
         needs: [setup]
         if: |
-            (github.event_name == 'pull_request' || 
-            (github.event_name == 'push' &&
-            (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || github.ref == 'refs/heads/dev'))) && 
+            (github.event_name == 'pull_request' ||  (github.event_name == 'push')) && 
             (contains(needs.setup.outputs.changed_files, 'service/'))
         uses: ./.github/workflows/service.yml
         with:

@@ -72,7 +72,7 @@ jobs:
     - name: Force ECS service deployment
       env:
         CLUSTER_NAME: "${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-backend-cluster"
-        SERVICE_NAME: "${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-${{ env.COMPONENT_NAME }}-service"
+        SERVICE_NAME: "${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-${{ env.COMPONENT_NAME }}"
       run: |
         echo "Forcing deployment of ECS service: $SERVICE_NAME in cluster: $CLUSTER_NAME"
         aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment --region ${{ vars.REGION }}

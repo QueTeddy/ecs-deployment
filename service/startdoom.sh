@@ -1,2 +1,5 @@
 #!/bin/bash
-/opt/crispy-doom/src/crispy-doom -wad /opt/crispy-doom/doom1.wad -nosound
+
+export DISPLAY=:1
+
+/usr/local/bin/crispy-doom -iwad /opt/crispy-doom/doom1.wad -nosound

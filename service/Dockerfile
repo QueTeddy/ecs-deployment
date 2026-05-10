@@ -1,9 +1,9 @@
-# USE ALPINE AS BASE IMAGE
 FROM b0nam/debian-novnc:base
 
-ENV TIGER_VNC_PASSWORD PASSWORD
+ENV TIGER_VNC_PASSWORD=PASSWORD
+ENV DISPLAY=:1
+ENV HOME=/root
 
-# INSTALL DEPENDENCIES
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
     build-essential \
@@ -15,24 +15,33 @@ RUN apt-get update && \
     autoconf \
     libtool \
     pkg-config \
+    git \
+    ca-certificates \
+    curl \
+    wget \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/*
 
-# CLONE CRISPY-DOOM REPOSITORY
 WORKDIR /opt
 RUN git clone https://github.com/fabiangreffrath/crispy-doom.git
 
-# RUN COMPILATION COMMANDS
 WORKDIR /opt/crispy-doom
 RUN autoreconf -fiv && \
     ./configure && \
     make && \
     make install
 
-# GET DOOM1 WAD FILE
-RUN wget -O doom1.wad http://ftp.debian.org/debian/pool/non-free/d/doom-wad-shareware/doom-wad-shareware_1.9.fixed.orig.tar.gz && \
-    tar -xzvf doom1.wad && \
-    mv /opt/crispy-doom/doom-wad-shareware-1.9.fixed/doom1.wad /opt/crispy-doom && \
-    rm -rf /opt/crispy-doom/doom-wad-shareware-1.9.fixed
+RUN wget -O doom_wad.tar.gz http://ftp.debian.org/debian/pool/non-free/d/doom-wad-shareware/doom-wad-shareware_1.9.fixed.orig.tar.gz && \
+    tar -xzvf doom_wad.tar.gz && \
+    mv doom-wad-shareware-1.9.fixed/doom1.wad /opt/crispy-doom/ && \
+    rm -rf doom-wad-shareware-1.9.fixed doom_wad.tar.gz
 
-COPY . /src
+WORKDIR /src
+
+COPY . .
+
+RUN chmod +x /src/entrypoint.sh /src/startdoom.sh
+
+EXPOSE 8080
+
+ENTRYPOINT ["/src/entrypoint.sh"]
