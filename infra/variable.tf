@@ -40,7 +40,7 @@ variable "SERVICE_CONFIG" {
   }))
 
   default = {
-    app_service = {
+    app-service = {
     name           = "app-service"
     is_public      = false
     container_port = 8080
