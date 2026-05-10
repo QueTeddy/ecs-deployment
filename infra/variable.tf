@@ -19,14 +19,6 @@ variable "SERVICE_CONFIG" {
     memory         = number
     desired_count  = number
 
-    alb_target_group = object({
-      port              = number
-      protocol          = string
-      path_pattern      = list(string)
-      health_check_path = string
-      priority          = number
-    })
-
     auto_scaling = object({
       max_capacity = number
       min_capacity = number
