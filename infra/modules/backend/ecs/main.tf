@@ -1,7 +1,7 @@
 locals {
   env_settings = {
     dev = {
-      max_capacity = 100 
+      max_capacity = 200 
       min_healthy  = 100
       spot_weight  = 100
       fargate_base = 0 
