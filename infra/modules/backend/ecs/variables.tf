@@ -12,16 +12,6 @@ variable "REGION" {}
 
 variable "SERVICE_CONFIG" {}
 
-variable "DB_USER" {}
-
-variable "DB_PASSWORD" {}
-
-variable "DB_NAME" {}
-
-variable "DB_HOST" {}
-
-variable "DB_PORT" {}
-
 variable "vpc_id" {
   type = string
   description = "VPC id where ECS services will run"
@@ -43,12 +33,9 @@ variable "BACKEND_SECURITY_GROUP" {
   description = "ID of service security group created by network module"
 }
 
-
 variable "WEBAPP_SUBNETS" {}
 
 variable "WEBAPP_SECURITY_GROUP_ID" {}
 
-variable "WEBAPP_DNS" {}
 
-variable "API_DOMAIN" {}
 

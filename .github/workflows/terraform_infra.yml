@@ -122,8 +122,3 @@ jobs:
         if: inputs.is_pull_request == false
         working-directory: ${{ env.CWD }}
         run: terraform apply -auto-approve tfplan-infra
-
-      - name: Trigger DB Creation
-        if: inputs.is_pull_request == false
-        working-directory: ${{ env.CWD }}
-        run: aws lambda invoke --function-name ${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-db-creators --cli-binary-format raw-in-base64-out --payload '{}' response.json

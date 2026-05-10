@@ -49,14 +49,6 @@ variable "SERVICE_CONFIG" {
     memory         = 512
     desired_count  = 1
 
-    alb_target_group = {
-      port              = 8001
-      protocol          = "HTTP"
-      path_pattern      = ["/app-service*"]
-      health_check_path = "/app-service/docs"
-      priority          = 10
-    }
-
     auto_scaling = {
       max_capacity = 2
       min_capacity = 1

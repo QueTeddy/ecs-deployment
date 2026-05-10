@@ -1,22 +1,10 @@
 locals {
   env_settings = {
     dev = {
-      max_capacity = 200 
+      max_capacity = 100 
       min_healthy  = 100
       spot_weight  = 100
       fargate_base = 0 
-    }
-    test = {
-      max_capacity = 200 
-      min_healthy  = 100
-      spot_weight  = 100
-      fargate_base = 0 
-    }
-    prod = {
-      max_capacity = 200 
-      min_healthy  = 100
-      spot_weight  = 80
-      fargate_base = 1 
     }
   }
 
@@ -24,20 +12,14 @@ locals {
 }
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = lower("${var.ENV}-${var.PROJECT_NAME}-backend-cluster")
+  name = lower("${var.ENV}-${var.PROJECT_NAME}-cluster")
   tags = var.COMMON_TAGS
 }
 
 resource "aws_ecs_cluster_capacity_providers" "capacity_provider" {
   cluster_name = aws_ecs_cluster.ecs_cluster.name
+  capacity_providers = ["FARGATE_SPOT"]
 
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
-
-  default_capacity_provider_strategy {
-    base              = 1
-    weight            = 100
-    capacity_provider = "FARGATE"
-  }
 }
 
 resource "aws_ecs_task_definition" "ecs_task_definition" {
@@ -64,29 +46,6 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
         }
       ]
 
-      healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:${each.value.container_port}${each.value.alb_target_group.health_check_path} || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 60
-      }
-
-      # environment = [
-      #   {
-      #     name  = "SERVICE"
-      #     value = tostring(var.RSERVICE_PORT)
-      #   }
-      # ]
-
-      # secrets = [
-        
-      #   {
-      #     name      = "ADDRESS"
-      #     valueFrom = "${aws_secretsmanager_secret.service_secrets[each.key].arn}:ADDRESS::"
-      #   }
-      # ]
-
       logConfiguration = {
         logDriver = "awslogs"
         options   = {
@@ -108,12 +67,6 @@ resource "aws_ecs_service" "private_service" {
   desired_count   = each.value.desired_count
 
   capacity_provider_strategy {
-    capacity_provider = "FARGATE"
-    weight            = 100 - local.current.spot_weight
-    base              = local.current.fargate_base
-  }
-
-  capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
     weight            = local.current.spot_weight
   }
@@ -121,13 +74,7 @@ resource "aws_ecs_service" "private_service" {
   deployment_maximum_percent         = local.current.max_capacity
   deployment_minimum_healthy_percent = local.current.min_healthy
 
-  availability_zone_rebalancing = var.ENV == "dev" ? "DISABLED" : var.ENV == "test" ? "DISABLED" : "ENABLED"
-
-  service_registries {
-    registry_arn   = aws_service_discovery_service.applications[each.key].arn
-    container_name = each.value.name
-    # container_port = each.value.container_port
-  }
+  availability_zone_rebalancing = "DISABLED"
 
   deployment_circuit_breaker {
     enable   = true
@@ -138,14 +85,5 @@ resource "aws_ecs_service" "private_service" {
     subnets          = var.BACKEND_SUBNETS
     assign_public_ip = each.value.is_public == true ? true : false
     security_groups  = [var.BACKEND_SECURITY_GROUP]
-  }
-
-  dynamic "load_balancer" {
-    for_each = contains(keys(aws_lb_target_group.applications), each.key) ? [1] : []
-    content {
-      target_group_arn = aws_lb_target_group.applications[each.key].arn
-      container_name   = each.value.name
-      container_port   = each.value.container_port
-    }
   }
 }

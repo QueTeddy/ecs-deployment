@@ -7,7 +7,7 @@ locals {
     project     = var.PROJECT_NAME
     environment = var.ENVIRONMENT
     managedBy   = "ebhamenteddyjr@gmail.com"
-    name        = "ecs-deploymenmt-ride"
+    name        = "ecs-deploymenmt"
   }
 }
 
@@ -28,37 +28,30 @@ module network {
 }
 
 # ECR Repositories
-# module "ecr" {
-#   source               = "./modules/backend/ecr"
-#   ENV                  = var.ENVIRONMENT
-#   PROJECT_NAME         = var.PROJECT_NAME
-#   COMMON_TAGS          = local.COMMON_TAGS
-#   ECR_REPOSITORIES     = local.REPOSITORIES
-# }
+module "ecr" {
+  source               = "./modules/backend/ecr"
+  ENV                  = var.ENVIRONMENT
+  PROJECT_NAME         = var.PROJECT_NAME
+  COMMON_TAGS          = local.COMMON_TAGS
+  ECR_REPOSITORIES     = local.REPOSITORIES
+}
 
-# module "ecs" {
-#   source                    = "./modules/backend/ecs"
-#   ENV                       = var.ENVIRONMENT
-#   PROJECT_NAME              = var.PROJECT_NAME
-#   COMMON_TAGS               = local.COMMON_TAGS
-#   ECR_REPOSITORIES          = local.REPOSITORIES
-#   ACCOUNT_ID                = local.ACCOUNTID
-#   REGION                    = local.REGION
-#   DB_USER                   = module.database.DB_USERNAME
-#   DB_PASSWORD               = module.database.DB_PASSWORD
-#   DB_NAME                   = module.database.DB_NAME
-#   DB_HOST                   = module.database.DB_HOST
-#   DB_PORT                   = module.database.DB_PORT
-#   vpc_id                    = module.network.vpc_id
-#   BACKEND_SUBNETS           = module.network.backend_subnet_ids
-#   WEBAPP_SUBNETS            = module.network.public_subnet_ids
-#   enable_alb                = false
-#   WEBAPP_DNS                = var.WEBAPP_DNS
-#   BACKEND_SECURITY_GROUP    = module.network.backend_security_group_id
-#   WEBAPP_SECURITY_GROUP_ID  = module.network.WEBAPP_SECURITY_GROUP_ID
-#   WEBAPP_CERT_ARN           = var.WEBAPP_CERT_ARN
-#   SERVICE_CONFIG            = var.SERVICE_CONFIG
-# }
+module "ecs" {
+  source                    = "./modules/backend/ecs"
+  ENV                       = var.ENVIRONMENT
+  PROJECT_NAME              = var.PROJECT_NAME
+  COMMON_TAGS               = local.COMMON_TAGS
+  ECR_REPOSITORIES          = local.REPOSITORIES
+  ACCOUNT_ID                = local.ACCOUNTID
+  REGION                    = local.REGION
+  vpc_id                    = module.network.vpc_id
+  BACKEND_SUBNETS           = module.network.app_subnet_ids
+  WEBAPP_SUBNETS            = module.network.public_subnet_ids
+  enable_alb                = false
+  BACKEND_SECURITY_GROUP    = module.network.backend_security_group_id
+  WEBAPP_SECURITY_GROUP_ID  = module.network.WEBAPP_SECURITY_GROUP_ID
+  SERVICE_CONFIG            = var.SERVICE_CONFIG
+}
 
 # # Route 53 Records
 # module "route53" {
