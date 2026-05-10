@@ -40,8 +40,8 @@ variable "SERVICE_CONFIG" {
   }))
 
   default = {
-    service = {
-    name           = "service"
+    app_service = {
+    name           = "app-service"
     is_public      = false
     container_port = 8001
     host_port      = 8001
@@ -52,8 +52,8 @@ variable "SERVICE_CONFIG" {
     alb_target_group = {
       port              = 8001
       protocol          = "HTTP"
-      path_pattern      = ["/service*"]
-      health_check_path = "/service/docs"
+      path_pattern      = ["/app-service*"]
+      health_check_path = "/app-service/docs"
       priority          = 10
     }
 

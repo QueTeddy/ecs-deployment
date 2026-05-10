@@ -1,7 +1,7 @@
 locals {
   ACCOUNTID            = data.aws_caller_identity.current.account_id
   AVAILABILITY_ZONES   = slice(data.aws_availability_zones.available.names, 0, 2)
-  REPOSITORIES         = ["service"]
+  REPOSITORIES         = ["app-service"]
   REGION               = var.REGION
   COMMON_TAGS = {
     project     = var.PROJECT_NAME
@@ -14,21 +14,18 @@ locals {
 
 
 # network module
-# module network {
-#   source               = "./modules/network"
-#   ENV                  = var.ENVIRONMENT
-#   PROJECT_NAME         = var.PROJECT_NAME
-#   azs                  = local.AVAILABILITY_ZONES
-#   cidr                 = "10.0.0.0/16"
-#   database_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
-#   backend_subnets      = ["10.0.3.0/24", "10.0.4.0/24"]
-#   cache_subnets        = ["10.0.3.0/24", "10.0.4.0/24"]
-#   public_subnets       = ["10.0.5.0/24", "10.0.6.0/24"]
-#   COMMON_TAGS          = local.COMMON_TAGS
-#   SERVICE_CONFIG       = var.SERVICE_CONFIG
-#   REDIS_PORT           = var.REDIS_PORT
+module network {
+  source               = "./modules/network"
+  ENV                  = var.ENVIRONMENT
+  PROJECT_NAME         = var.PROJECT_NAME
+  azs                  = local.AVAILABILITY_ZONES
+  cidr                 = "10.0.0.0/16"
+  app_subnets          = ["10.0.3.0/24"]
+  public_subnets       = ["10.0.5.0/24"]
+  COMMON_TAGS          = local.COMMON_TAGS
+  SERVICE_CONFIG       = var.SERVICE_CONFIG
 
-# }
+}
 
 # ECR Repositories
 # module "ecr" {
@@ -61,20 +58,6 @@ locals {
 #   WEBAPP_SECURITY_GROUP_ID  = module.network.WEBAPP_SECURITY_GROUP_ID
 #   WEBAPP_CERT_ARN           = var.WEBAPP_CERT_ARN
 #   SERVICE_CONFIG            = var.SERVICE_CONFIG
-#   REDIS_PORT                = var.REDIS_PORT
-#   DRIVER_SQS_URL            = module.driver_sqs.sqs_queue_url
-#   DRIVER_SQS_ARN            = module.driver_sqs.sqs_queue_arn
-#   SOS_SQS_URL               = module.sos_sqs.sqs_queue_url
-#   SOS_SQS_ARN               = module.sos_sqs.sqs_queue_arn
-#   MEDIAASSET_BUCKET         = module.mediaasset_webapp.s3_bucket_name
-#   MEDIAASSET_ARN            = module.mediaasset_webapp.s3_bucket_arn
-#   API_DOMAIN                = module.route53.API_DOMAIN
-#   EARNINGS_SQS_QUEUE_URL    = module.earnings_sqs.sqs_queue_url
-#   PAYSTACK_SECRET_KEY       = var.PAYSTACK_SECRET_KEY
-#   PAYSTACK_MIN_DEPOSIT      = var.PAYSTACK_MIN_DEPOSIT
-#   AGORA_APP_ID              = var.AGORA_APP_ID
-#   AGORA_APP_CERTIFICATE     = var.AGORA_APP_CERTIFICATE
-#   AGORA_TOKEN_EXPIRY_SECONDS = var.AGORA_TOKEN_EXPIRY_SECONDS
 # }
 
 # # Route 53 Records

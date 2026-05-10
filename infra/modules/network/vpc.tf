@@ -1,4 +1,4 @@
-resource "aws_vpc" "ecs_deploymenmt" {
+resource "aws_vpc" "ecs_deployment" {
   cidr_block           = "${var.cidr}"
   instance_tenancy     = "default"
   enable_dns_hostnames = true

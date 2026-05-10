@@ -16,7 +16,7 @@ variable "public_subnets" {
   description = "A list of public subnets inside the VPC."
 }
 
-variable "webapp_subnets" {
+variable "app_subnets" {
   description = "A list of private subnets inside the VPC."
 }
 
