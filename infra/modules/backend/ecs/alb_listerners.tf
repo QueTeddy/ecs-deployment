@@ -39,7 +39,7 @@ resource "aws_lb_listener_rule" "service_routing" {
 resource "aws_lb_target_group" "applications" {
   for_each = var.SERVICE_CONFIG
 
-  name        = "${var.ENV}-${var.PROJECT_NAME}-${each.key}-TG"
+  name        = "${var.ENV}-${each.key}-TG"
   port        = each.value.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id

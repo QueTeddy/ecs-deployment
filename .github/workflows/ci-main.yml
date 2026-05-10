@@ -108,5 +108,5 @@ jobs:
             aws_region: ${{ vars.REGION }}
             project_name: ${{ vars.PROJECT_NAME }}
             current_working_directory: service
-            component_name: 'service'
+            component_name: 'app-service'
         secrets: inherit
