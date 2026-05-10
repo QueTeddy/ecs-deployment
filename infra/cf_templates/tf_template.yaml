@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template to create a protected S3 bucket and a protected DynamoDB table.
+
+Parameters:
+  Enviroment:
+    Description: Enviroment which uses the role
+    Type: String
+    Default: dev
+  ProjectName:
+    Description: Name of the project
+    Type: String
+    Default: ecs-deployment
+    
+Resources:
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${Enviroment}-${ProjectName}-terraform-state"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+          - Key: project
+            Value: !Ref ProjectName
+          
+
+  TerraformDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    Properties:
+      TableName: !Sub "${Enviroment}-${ProjectName}-terraform-locks"
+      KeySchema:
+      - AttributeName: 'LockID'
+        KeyType: HASH
+      AttributeDefinitions:
+      - AttributeName: 'LockID'
+        AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: true
+        SSEType: KMS
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+          - Key: project
+            Value: !Ref ProjectName
+          - Key: enviroment
+            Value: !Ref Enviroment
+
+  SecretsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub "${Enviroment}-${ProjectName}-secrets-bucket"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+      - Key: project
+        Value: !Ref ProjectName
+  
+Outputs:
+  TerraformS3BucketName:
+    Description: Name of the protected S3 Bucket
+    Value: !Ref TerraformStateBucket
+  DynamoDBTableName:
+    Description: Name of the protected DynamoDB Table
+    Value: !Ref TerraformDynamoDBTable
+  SecretsS3BucketName:
+    Description: Name of the protected S3 Bucket
+    Value: !Ref SecretsBucket

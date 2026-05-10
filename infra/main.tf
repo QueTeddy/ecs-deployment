@@ -1,0 +1,89 @@
+locals {
+  ACCOUNTID            = data.aws_caller_identity.current.account_id
+  AVAILABILITY_ZONES   = slice(data.aws_availability_zones.available.names, 0, 2)
+  REPOSITORIES         = ["service"]
+  REGION               = var.REGION
+  COMMON_TAGS = {
+    project     = var.PROJECT_NAME
+    environment = var.ENVIRONMENT
+    managedBy   = "ebhamenteddyjr@gmail.com"
+    name        = "ecs-deploymenmt-ride"
+  }
+}
+
+
+
+# network module
+# module network {
+#   source               = "./modules/network"
+#   ENV                  = var.ENVIRONMENT
+#   PROJECT_NAME         = var.PROJECT_NAME
+#   azs                  = local.AVAILABILITY_ZONES
+#   cidr                 = "10.0.0.0/16"
+#   database_subnets     = ["10.0.1.0/24", "10.0.2.0/24"]
+#   backend_subnets      = ["10.0.3.0/24", "10.0.4.0/24"]
+#   cache_subnets        = ["10.0.3.0/24", "10.0.4.0/24"]
+#   public_subnets       = ["10.0.5.0/24", "10.0.6.0/24"]
+#   COMMON_TAGS          = local.COMMON_TAGS
+#   SERVICE_CONFIG       = var.SERVICE_CONFIG
+#   REDIS_PORT           = var.REDIS_PORT
+
+# }
+
+# ECR Repositories
+# module "ecr" {
+#   source               = "./modules/backend/ecr"
+#   ENV                  = var.ENVIRONMENT
+#   PROJECT_NAME         = var.PROJECT_NAME
+#   COMMON_TAGS          = local.COMMON_TAGS
+#   ECR_REPOSITORIES     = local.REPOSITORIES
+# }
+
+# module "ecs" {
+#   source                    = "./modules/backend/ecs"
+#   ENV                       = var.ENVIRONMENT
+#   PROJECT_NAME              = var.PROJECT_NAME
+#   COMMON_TAGS               = local.COMMON_TAGS
+#   ECR_REPOSITORIES          = local.REPOSITORIES
+#   ACCOUNT_ID                = local.ACCOUNTID
+#   REGION                    = local.REGION
+#   DB_USER                   = module.database.DB_USERNAME
+#   DB_PASSWORD               = module.database.DB_PASSWORD
+#   DB_NAME                   = module.database.DB_NAME
+#   DB_HOST                   = module.database.DB_HOST
+#   DB_PORT                   = module.database.DB_PORT
+#   vpc_id                    = module.network.vpc_id
+#   BACKEND_SUBNETS           = module.network.backend_subnet_ids
+#   WEBAPP_SUBNETS            = module.network.public_subnet_ids
+#   enable_alb                = false
+#   WEBAPP_DNS                = var.WEBAPP_DNS
+#   BACKEND_SECURITY_GROUP    = module.network.backend_security_group_id
+#   WEBAPP_SECURITY_GROUP_ID  = module.network.WEBAPP_SECURITY_GROUP_ID
+#   WEBAPP_CERT_ARN           = var.WEBAPP_CERT_ARN
+#   SERVICE_CONFIG            = var.SERVICE_CONFIG
+#   REDIS_PORT                = var.REDIS_PORT
+#   DRIVER_SQS_URL            = module.driver_sqs.sqs_queue_url
+#   DRIVER_SQS_ARN            = module.driver_sqs.sqs_queue_arn
+#   SOS_SQS_URL               = module.sos_sqs.sqs_queue_url
+#   SOS_SQS_ARN               = module.sos_sqs.sqs_queue_arn
+#   MEDIAASSET_BUCKET         = module.mediaasset_webapp.s3_bucket_name
+#   MEDIAASSET_ARN            = module.mediaasset_webapp.s3_bucket_arn
+#   API_DOMAIN                = module.route53.API_DOMAIN
+#   EARNINGS_SQS_QUEUE_URL    = module.earnings_sqs.sqs_queue_url
+#   PAYSTACK_SECRET_KEY       = var.PAYSTACK_SECRET_KEY
+#   PAYSTACK_MIN_DEPOSIT      = var.PAYSTACK_MIN_DEPOSIT
+#   AGORA_APP_ID              = var.AGORA_APP_ID
+#   AGORA_APP_CERTIFICATE     = var.AGORA_APP_CERTIFICATE
+#   AGORA_TOKEN_EXPIRY_SECONDS = var.AGORA_TOKEN_EXPIRY_SECONDS
+# }
+
+# # Route 53 Records
+# module "route53" {
+#   source               = "./modules/route53"
+#   ENV                  = var.ENVIRONMENT
+#   PROJECT_NAME         = var.PROJECT_NAME
+#   COMMON_TAGS          = local.COMMON_TAGS
+#   WEBAPP_DNS           = var.WEBAPP_DNS
+#   ALB_DNS              = module.ecs.alb_dns
+#   ALB_ZONE_ID          = module.ecs.alb_zone_id
+# }

@@ -1,0 +1,117 @@
+name: Main CI/CD Pipeline
+
+on:
+    push:
+        branches:
+            - main
+
+    pull_request:
+        branches:
+            - main
+
+    workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+
+    # Determine environment and run security scans
+    setup:
+        runs-on: ubuntu-latest
+        outputs:
+            environment: ${{ vars.ENVIRONMENT }}
+            aws_region: ${{ vars.REGION }}
+            account_id: ${{ vars.ACCOUNT_ID }}
+            project_name: ${{ vars.PROJECT_NAME }}
+            changed_files: ${{ steps.changed_files.outputs.changed_files }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+
+            - name: Set environment variables
+              id: set-env
+              run: |
+                  echo "project_name=${{ vars.PROJECT_NAME }}" >> $GITHUB_OUTPUT
+                  echo "account_id=${{ vars.ACCOUNT_ID }}" >> $GITHUB_OUTPUT
+                  echo "environment=${{ vars.ENVIRONMENT }}" >> $GITHUB_OUTPUT
+                  echo "aws_region=${{ vars.REGION }}" >> $GITHUB_OUTPUT
+
+            - name: Install jq
+              run: sudo apt-get install -y jq
+
+            - name: Get files changed in this commit and set output
+              id: changed_files
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  echo "calling out the project name to see if the github secrets work"
+                  PN="${{ vars.PROJECT_NAME }}"
+                  echo "Project name length is: ${#PN}"
+
+                  if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+                    commit_sha=${{ github.sha }}
+                    repo=${{ github.repository }}
+                    echo "Fetching PR commit details for $commit_sha"
+                    curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        https://api.github.com/repos/$repo/commits/$commit_sha \
+                        -o commit.json
+                    files=$(jq -r '.files[].filename' commit.json | paste -sd ',' -)
+                  else
+                    # For push/merge use the compare API between before and after SHAs
+                    # This captures all files in the merged PR, not just the merge commit
+                    before=${{ github.event.before }}
+                    after=${{ github.event.after }}
+                    repo=${{ github.repository }}
+                    echo "Comparing $before...$after"
+                    curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        "https://api.github.com/repos/$repo/compare/${before}...${after}" \
+                        -o compare.json
+                    files=$(jq -r '.files[].filename' compare.json | paste -sd ',' -)
+                  fi
+
+                  echo "Files changed: $files"
+                  echo "changed_files=$files" >> $GITHUB_OUTPUT
+
+    tf_infra:
+        needs: [setup]
+        if: |
+            always() &&
+            needs.setup.result == 'success' &&
+            (contains(needs.setup.outputs.changed_files, 'infra/') ||
+            github.event_name == 'push')
+        uses: ./.github/workflows/terraform_infra.yml
+        with:
+            environment: ${{ vars.ENVIRONMENT }}
+            aws_region: ${{ vars.REGION }}
+            component_name: 'terraform-infra'
+            account_id: ${{ vars.ACCOUNT_ID }}
+            project_name: ${{ vars.PROJECT_NAME }}
+            current_working_directory: infra
+            is_pull_request: ${{ github.event_name == 'pull_request' }}
+        secrets: inherit
+
+    
+
+
+    deploy-service:
+        needs: [setup]
+        if: |
+            (github.event_name == 'pull_request' || 
+            (github.event_name == 'push' &&
+            (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test' || github.ref == 'refs/heads/dev'))) && 
+            (contains(needs.setup.outputs.changed_files, 'service/'))
+        uses: ./.github/workflows/service.yml
+        with:
+            environment: ${{ vars.ENVIRONMENT }}
+            aws_region: ${{ vars.REGION }}
+            account_id: ${{ vars.ACCOUNT_ID }}
+            project_name: ${{ vars.PROJECT_NAME }}
+            current_working_directory: service
+            component_name: 'service'
+        secrets: inherit

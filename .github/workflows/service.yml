@@ -1,0 +1,83 @@
+name: Build and Push to ECR
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: "The environment to deploy to"
+      aws_region:
+        required: false
+        type: string
+        description: "The AWS region to deploy to"
+      account_id:
+        required: false
+        type: string
+        description: "The AWS account id"
+      project_name:
+        required: false
+        type: string
+        description: "The project name"
+      current_working_directory:
+        required: true
+        type: string
+      component_name:
+        required: true
+        type: string
+
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ inputs.environment }}
+      AWS_REGION: ${{ inputs.aws_region }}
+      COMPONENT_NAME: ${{ inputs.component_name }}
+      PROJECT_NAME: ${{ inputs.project_name }}
+      ACCOUNT_ID: ${{ inputs.account_id }}
+      CWD: ${{ inputs.current_working_directory }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.13"
+
+    - name: "Configure AWS Credentials"
+      uses: aws-actions/configure-aws-credentials@v4.0.2
+      with:
+        audience: sts.amazonaws.com
+        role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/prod-${{ vars.PROJECT_NAME }}-GithubActionsRole # The role to assume (The ARN of the created role)
+        role-session-name: "GithubActions-${{ vars.PROJECT_NAME }}"
+        aws-region: ${{ vars.REGION }}
+        mask-aws-account-id: true # Hide Your AWS Account in workflow outputs
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      working-directory: ${{ env.CWD }}
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: "${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-${{ env.COMPONENT_NAME }}-service" # Change to your repo name
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+    - name: Force ECS service deployment
+      env:
+        CLUSTER_NAME: "${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-backend-cluster"
+        SERVICE_NAME: "${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-${{ env.COMPONENT_NAME }}-service"
+      run: |
+        echo "Forcing deployment of ECS service: $SERVICE_NAME in cluster: $CLUSTER_NAME"
+        aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment --region ${{ vars.REGION }}
