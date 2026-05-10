@@ -46,6 +46,14 @@ resource "aws_ecs_task_definition" "ecs_task_definition" {
         }
       ]
 
+      healthCheck = {
+        command     = ["CMD-SHELL", "curl -f http://localhost:${each.value.container_port}${each.value.alb_target_group.health_check_path} || exit 1"]
+        interval    = 30
+        timeout     = 5
+        retries     = 3
+        startPeriod = 60
+      }
+
       logConfiguration = {
         logDriver = "awslogs"
         options   = {
@@ -85,5 +93,14 @@ resource "aws_ecs_service" "private_service" {
     subnets          = var.BACKEND_SUBNETS
     assign_public_ip = each.value.is_public == true ? true : false
     security_groups  = [var.BACKEND_SECURITY_GROUP]
+  }
+
+  dynamic "load_balancer" {
+    for_each = contains(keys(aws_lb_target_group.applications), each.key) ? [1] : []
+    content {
+      target_group_arn = aws_lb_target_group.applications[each.key].arn
+      container_name   = each.value.name
+      container_port   = each.value.container_port
+    }
   }
 }
