@@ -14,9 +14,6 @@ on:
       component_name:
         required: true
         type: string
-      account_id:
-        required: true
-        type: string
       project_name:
         required: true
         type: string
@@ -44,7 +41,6 @@ jobs:
       AWS_REGION: ${{ inputs.aws_region }}
       COMPONENT_NAME: ${{ inputs.component_name }}
       PROJECT_NAME: ${{ inputs.project_name }}
-      ACCOUNT_ID: ${{ inputs.account_id }}
       CWD: ${{ inputs.current_working_directory }}
     steps:
       - name: Checkout code
@@ -88,7 +84,6 @@ jobs:
       AWS_REGION: ${{ inputs.aws_region }}
       COMPONENT_NAME: ${{ inputs.component_name }}
       PROJECT_NAME: ${{ inputs.project_name }}
-      ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
       CWD: ${{ inputs.current_working_directory }}
     steps:
       - name: Checkout code

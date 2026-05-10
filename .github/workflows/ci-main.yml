@@ -23,7 +23,6 @@ jobs:
         outputs:
             environment: ${{ vars.ENVIRONMENT }}
             aws_region: ${{ vars.REGION }}
-            account_id: ${{ secrets.ACCOUNT_ID }}
             project_name: ${{ vars.PROJECT_NAME }}
             changed_files: ${{ steps.changed_files.outputs.changed_files }}
         steps:
@@ -36,7 +35,6 @@ jobs:
               id: set-env
               run: |
                   echo "project_name=${{ vars.PROJECT_NAME }}" >> $GITHUB_OUTPUT
-                  echo "account_id=${{ vars.ACCOUNT_ID }}" >> $GITHUB_OUTPUT
                   echo "environment=${{ vars.ENVIRONMENT }}" >> $GITHUB_OUTPUT
                   echo "aws_region=${{ vars.REGION }}" >> $GITHUB_OUTPUT
 
@@ -90,7 +88,6 @@ jobs:
             environment: ${{ vars.ENVIRONMENT }}
             aws_region: ${{ vars.REGION }}
             component_name: 'terraform-infra'
-            account_id: ${{ secrets.ACCOUNT_ID }}
             project_name: ${{ vars.PROJECT_NAME }}
             current_working_directory: infra
         secrets: inherit
@@ -109,7 +106,6 @@ jobs:
         with:
             environment: ${{ vars.ENVIRONMENT }}
             aws_region: ${{ vars.REGION }}
-            account_id: ${{ secrets.ACCOUNT_ID }}
             project_name: ${{ vars.PROJECT_NAME }}
             current_working_directory: service
             component_name: 'service'
