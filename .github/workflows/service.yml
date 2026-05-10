@@ -55,7 +55,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v4.0.2
       with:
         audience: sts.amazonaws.com
-        role-to-assume: arn:aws:iam::${{ env.ACCOUNT_ID }}:role/prod-${{ vars.PROJECT_NAME }}-GithubActionsRole # The role to assume (The ARN of the created role)
+        role-to-assume: ${{ secrets.ASSUME_ROLE }}
         role-session-name: "GithubActions-${{ vars.PROJECT_NAME }}"
         aws-region: ${{ vars.REGION }}
         mask-aws-account-id: true # Hide Your AWS Account in workflow outputs
