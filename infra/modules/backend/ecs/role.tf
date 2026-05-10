@@ -25,25 +25,7 @@ resource "aws_iam_role_policy" "ecs_secrets_policy" {
           "secretsmanager:GetSecretValue",
           "kms:Decrypt"
           ]
-        Resource = [for s in aws_secretsmanager_secret.service_secrets : s.arn]
-      }
-    ]
-  })
-}
-resource "aws_iam_role_policy" "ecs_secrets_redis_policy" {
-  name = "${var.ENV}-${var.PROJECT_NAME}-redis-ecs-secrets-policy"
-  role = aws_iam_role.ecs_task_execution_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = [
-          "secretsmanager:GetSecretValue",
-          "kms:Decrypt"
-          ]
-        Resource = "${aws_secretsmanager_secret.redis_password.arn}"
+        Resource = "*"
       }
     ]
   })

@@ -48,8 +48,8 @@ module "ecs" {
   BACKEND_SUBNETS           = module.network.app_subnet_ids
   WEBAPP_SUBNETS            = module.network.public_subnet_ids
   enable_alb                = false
-  BACKEND_SECURITY_GROUP    = module.network.backend_security_group_id
-  WEBAPP_SECURITY_GROUP_ID  = module.network.WEBAPP_SECURITY_GROUP_ID
+  BACKEND_SECURITY_GROUP    = module.network.app_security_group_id
+  WEBAPP_SECURITY_GROUP_ID  = module.network.webapp_security_group_id
   SERVICE_CONFIG            = var.SERVICE_CONFIG
 }
 
