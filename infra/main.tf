@@ -1,6 +1,6 @@
 locals {
   ACCOUNTID            = data.aws_caller_identity.current.account_id
-  AVAILABILITY_ZONES   = slice(data.aws_availability_zones.available.names, 0, 2)
+  AVAILABILITY_ZONES   = ["us-east-1a"]
   REPOSITORIES         = ["app-service"]
   REGION               = var.REGION
   COMMON_TAGS = {
