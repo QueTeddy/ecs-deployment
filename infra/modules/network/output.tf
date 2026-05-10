@@ -25,8 +25,3 @@ output "webapp_security_group_id" {
   value       = aws_security_group.webapp_security_group.id
   description = "Webapp security group id for public ECS services"
 }
-
-output "app_security_group_id" {
-  value       = aws_security_group.service_security_group.id
-  description = "Service security group id for ECS internal services"
-}
