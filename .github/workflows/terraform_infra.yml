@@ -68,14 +68,6 @@ jobs:
         working-directory: ${{ env.CWD }}
         run: ./scripts/cf_deploy.sh ${{ vars.ENVIRONMENT }} ${{ vars.REGION }} ${{ vars.PROJECT_NAME }}
       
-      - name: Make cloudformation script for secrets executable
-        working-directory: ${{ env.CWD }}
-        run: chmod +x ./scripts/secrets_deploy.sh
-
-      - name: Run Cloudformation for Application Secrets
-        working-directory: ${{ env.CWD }}
-        run: ./scripts/secrets_deploy.sh ${{ vars.ENVIRONMENT }} ${{ vars.REGION }} ${{ vars.PROJECT_NAME }}
-
   terraform_plan_and_apply:
     needs: [deploy_terraform_infrastructure]
     runs-on: ubuntu-latest
