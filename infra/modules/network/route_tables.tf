@@ -1,7 +1,9 @@
 resource "aws_route_table" "private" {
+  count  = length(var.azs)
   vpc_id = aws_vpc.ecs_deployment.id
+
   tags = {
-    Name = "${var.ENV}-${var.PROJECT_NAME}-private-rt-${var.azs}"
+    Name = "${var.ENV}-${var.PROJECT_NAME}-private-rt-${element(var.azs, count.index)}"
   }
 }
 
@@ -12,8 +14,9 @@ resource "aws_route" "private_nat_gateway" {
 }
 
 resource "aws_route_table_association" "private" {
-  subnet_id      = aws_subnet.app.id
-  route_table_id = aws_route_table.private.id
+  count          = length(aws_subnet.app)
+  subnet_id      = aws_subnet.app[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
 }
 
 
@@ -30,6 +33,7 @@ resource "aws_route_table" "public_route_table" {
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.app.id
-  route_table_id = aws_route_table.public_route_table.id
+  count          = length(aws_subnet.app)
+  subnet_id      = aws_subnet.app[count.index].id
+  route_table_id = aws_route_table.public_route_table[count.index].id
 }
