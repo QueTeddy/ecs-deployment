@@ -34,7 +34,7 @@ resource "aws_route_table" "public_route_table" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = length(aws_subnet.app)
-  subnet_id      = aws_subnet.app[count.index].id
-  route_table_id = aws_route_table.public_route_table[count.index].id
+  count          = length(var.public_subnets)
+  subnet_id      = aws_subnet.webapp[count.index].id
+  route_table_id = aws_route_table.public_route_table.id
 }
