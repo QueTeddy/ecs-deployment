@@ -94,7 +94,7 @@ jobs:
           role-to-assume: ${{ secrets.ASSUME_ROLE }}
           role-session-name: "GithubActions-${{ vars.PROJECT_NAME }}"
           aws-region: ${{ vars.REGION }}
-          mask-aws-account-id: true # Hide Your AWS Account in workflow outputs
+          mask-aws-account-id: true
 
       - name: Make backend script executable
         working-directory: ${{ env.CWD }}
@@ -117,6 +117,12 @@ jobs:
         run: |
           aws s3 cp s3://${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-secrets-bucket/${{ vars.ENVIRONMENT }}.auto.tfvars /tmp/${{ vars.ENVIRONMENT }}.auto.tfvars
           terraform plan -var-file="/tmp/${{ vars.ENVIRONMENT }}.auto.tfvars" -var REGION=${{ vars.REGION }} -out=tfplan-infra
+
+      - name: SAST Scan Infrastructure
+        working-directory: ${{ env.CWD }}
+        run: |
+          pip3 install checkov --quiet
+          checkov --directory .
 
       - name: Terraform Apply
         if: inputs.is_pull_request == false

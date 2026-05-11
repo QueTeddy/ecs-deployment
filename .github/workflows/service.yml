@@ -7,10 +7,6 @@ on:
         required: true
         type: string
         description: "The environment to deploy to"
-      aws_region:
-        required: false
-        type: string
-        description: "The AWS region to deploy to"
       project_name:
         required: false
         type: string
@@ -32,7 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENVIRONMENT: ${{ inputs.environment }}
-      AWS_REGION: ${{ inputs.aws_region }}
       COMPONENT_NAME: ${{ inputs.component_name }}
       PROJECT_NAME: ${{ inputs.project_name }}
       CWD: ${{ inputs.current_working_directory }}
