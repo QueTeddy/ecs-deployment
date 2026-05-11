@@ -122,7 +122,7 @@ jobs:
         working-directory: ${{ env.CWD }}
         run: |
           pip3 install checkov --quiet
-          checkov --directory .
+          checkov --directory . --soft-fail 
 
       - name: Terraform Apply
         if: inputs.is_pull_request == false

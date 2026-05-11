@@ -7,7 +7,7 @@ locals {
     project     = var.PROJECT_NAME
     environment = var.ENVIRONMENT
     managedBy   = "ebhamenteddyjr@gmail.com"
-    name        = "ecs-deploymenmt"
+    name        = "ecs-deployment"
   }
 }
 
