@@ -101,7 +101,6 @@ jobs:
         uses: ./.github/workflows/service.yml
         with:
             environment: ${{ vars.ENVIRONMENT }}
-            aws_region: ${{ vars.REGION }}
             project_name: ${{ vars.PROJECT_NAME }}
             current_working_directory: service
             component_name: 'app-service'

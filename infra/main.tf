@@ -52,14 +52,3 @@ module "ecs" {
   WEBAPP_SECURITY_GROUP_ID  = module.network.webapp_security_group_id
   SERVICE_CONFIG            = var.SERVICE_CONFIG
 }
-
-# # Route 53 Records
-# module "route53" {
-#   source               = "./modules/route53"
-#   ENV                  = var.ENVIRONMENT
-#   PROJECT_NAME         = var.PROJECT_NAME
-#   COMMON_TAGS          = local.COMMON_TAGS
-#   WEBAPP_DNS           = var.WEBAPP_DNS
-#   ALB_DNS              = module.ecs.alb_dns
-#   ALB_ZONE_ID          = module.ecs.alb_zone_id
-# }
