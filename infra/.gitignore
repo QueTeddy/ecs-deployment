@@ -5,10 +5,6 @@ test.json
 *.tfstate.*
 *.tfstate.backup
 
-# Terraform variable files (contains secrets)
-terraform.tfvars
-*.auto.tfvars
-*.auto.tfvars.json
 
 # Terraform directories
 .terraform/

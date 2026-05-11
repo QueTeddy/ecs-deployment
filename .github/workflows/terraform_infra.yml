@@ -114,9 +114,7 @@ jobs:
 
       - name: Terraform Plan Infrastructure
         working-directory: ${{ env.CWD }}
-        run: |
-          aws s3 cp s3://${{ vars.ENVIRONMENT }}-${{ vars.PROJECT_NAME }}-secrets-bucket/${{ vars.ENVIRONMENT }}.auto.tfvars /tmp/${{ vars.ENVIRONMENT }}.auto.tfvars
-          terraform plan -var-file="/tmp/${{ vars.ENVIRONMENT }}.auto.tfvars" -var REGION=${{ vars.REGION }} -out=tfplan-infra
+        run: terraform plan -var-file="config/${{ vars.ENVIRONMENT }}.auto.tfvars" -var REGION=${{ vars.REGION }} -out=tfplan-infra
 
       - name: SAST Scan Infrastructure
         working-directory: ${{ env.CWD }}

@@ -67,7 +67,7 @@ Database (modules/database)
 
 ## Current gaps & action items ⚠️
 - The repo list in `locals.REPOSITORIES` must include `driver` if `driver`-task references remain. Ensure `REPOSITORIES` includes any repo referenced by `modules/backend/ecs` (e.g., `driver`).
-- There is **no ALB module** yet. If you want ALB-based routing, create an ALB module (ALB, listeners, TGs, SGs) and set `enable_alb = true`.
+- ALB support is available in the ECS module; verify `enable_alb` and listener configuration if you need public routing.
 - `service_config` is not defined in the root; add it via `dev.auto.tfvars` or pass into `module "ecs"`.
 - Backend S3 remote state backend is declared but requires configuration (bucket, region, key, etc.).
 - CI/CD for building/pushing Docker images into ECR is not present in repo — implement or push images manually before applying.
@@ -108,7 +108,11 @@ service_config = {
 
 ---
 
-## Commands (basic)
+## Notes on Deployment
+This repo is designed for cloud deployment via GitHub Actions and remote Terraform state.
+The commands below are useful for local code inspection or troubleshooting only; the standard deployment path is through the CI/CD workflow.
+
+## Commands (advanced / inspection only)
 - terraform init
 - terraform plan -var-file=config/dev.auto.tfvars
 - terraform apply -var-file=config/dev.auto.tfvars
