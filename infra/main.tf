@@ -36,6 +36,7 @@ module "ecr" {
   ECR_REPOSITORIES     = local.REPOSITORIES
 }
 
+# ECS Module
 module "ecs" {
   source                    = "./modules/backend/ecs"
   ENV                       = var.ENVIRONMENT

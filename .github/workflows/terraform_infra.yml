@@ -123,6 +123,9 @@ jobs:
           checkov --directory . --soft-fail 
 
       - name: Terraform Apply
-        if: inputs.is_pull_request == false
         working-directory: ${{ env.CWD }}
         run: terraform apply -auto-approve tfplan-infra
+
+      - name: Terraform Destroy
+        working-directory: ${{ env.CWD }}
+        run: terraform destroy -auto-approve tfplan-infra
