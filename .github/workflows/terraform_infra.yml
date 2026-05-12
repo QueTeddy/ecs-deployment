@@ -128,4 +128,4 @@ jobs:
 
       - name: Terraform Destroy
         working-directory: ${{ env.CWD }}
-        run: terraform destroy -auto-approve
+        run: terraform destroy -auto-approve -var-file="config/${{ vars.ENVIRONMENT }}.auto.tfvars"
